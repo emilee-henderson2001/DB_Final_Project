@@ -36,7 +36,7 @@ public class LoginFrame extends JFrame {
         // create panel to add content
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(24, 24, 24, 24));
-        content.setBackground(new Color(255, 215, 50));   // gold
+        content.setBackground(new Color(255, 215, 50));   // gold background 
 
         // Form setup
         JPanel form = new JPanel();
@@ -119,6 +119,15 @@ public class LoginFrame extends JFrame {
             return;
         }
 
-        //   ADD BACKEND LOGIN IMPLEMENTATION
+        
+
+        SwingUtilities.invokeLater(() -> {
+            dispose(); // close the login frame
+            if ("admin".equalsIgnoreCase(user)) {
+                new AdminHomePage(user).setVisible(true);
+            } else {
+                new MemberHomePage(user).setVisible(true);
+            }
+        });
     }
 }
