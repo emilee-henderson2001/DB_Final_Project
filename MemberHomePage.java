@@ -1,3 +1,6 @@
+/*
+ * This is the page where we will have buttons to direct member to different functions of the application 
+ */
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -46,12 +49,10 @@ public class MemberHomePage extends JFrame {
         options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
         options.setOpaque(false);
 
-        options.add(createPrimaryButton("Search Movies", () ->
-                JOptionPane.showMessageDialog(this, "we need to edit action")));
+        options.add(createPrimaryButton("Search Movies", this::searchPage));
         options.add(Box.createVerticalStrut(12));
 
-        options.add(createPrimaryButton("View Account", () ->
-                JOptionPane.showMessageDialog(this, "we need to edit action")));
+        options.add(createPrimaryButton("View Account", this::viewAccount));
         options.add(Box.createVerticalStrut(12));
      
 
@@ -92,7 +93,17 @@ public class MemberHomePage extends JFrame {
         return new JLabel(new ImageIcon(scaled));
     }
 
-    // opens new login window when logout is clicked 
+    private void searchPage() {
+        dispose(); 
+        new searchFrame().setVisible(true);
+    }
+
+    private void viewAccount() {
+        dispose(); 
+        new viewAccountFrame().setVisible(true);
+    }
+
+    // opens new login window when logout is clicked
     private void logout() {
         dispose();
         new LoginFrame().setVisible(true);

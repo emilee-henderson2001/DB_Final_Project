@@ -1,3 +1,7 @@
+/*
+ * This is the page where we will have buttons to direct Admin to different functions of the application 
+ */
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
