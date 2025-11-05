@@ -8,7 +8,7 @@ public class AdminMemberStreaming extends JFrame{
     public AdminMemberStreaming(String username) {
 
         // Create pop-up window
-        setTitle("ACED Streaming - Movie Search");
+        setTitle("ACED Streaming - Admin Member Search");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(520, 500);
         setLocationRelativeTo(null);
