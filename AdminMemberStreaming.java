@@ -39,7 +39,7 @@ public class AdminMemberStreaming extends JFrame{
         backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         backButton.addActionListener(e -> {
             dispose();
-            new MemberHomePage(username).setVisible(true);
+            new AdminHomePage(username).setVisible(true);
         });
         topPanel.add(backButton);
         content.add(topPanel, BorderLayout.NORTH);
