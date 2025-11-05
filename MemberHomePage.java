@@ -49,10 +49,10 @@ public class MemberHomePage extends JFrame {
         options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
         options.setOpaque(false);
 
-        options.add(createPrimaryButton("Search Movies", this::searchPage));
+        options.add(createPrimaryButton("Search Movies", () -> searchPage(username)));
         options.add(Box.createVerticalStrut(12));
 
-        options.add(createPrimaryButton("View Account", this::viewAccount));
+        options.add(createPrimaryButton("View Account", () -> viewAccount(username)));
         options.add(Box.createVerticalStrut(12));
      
 
@@ -93,14 +93,14 @@ public class MemberHomePage extends JFrame {
         return new JLabel(new ImageIcon(scaled));
     }
 
-    private void searchPage() {
+    private void searchPage(String username) {
         dispose(); 
-        new searchFrame().setVisible(true);
+        new searchFrame(username).setVisible(true);
     }
 
-    private void viewAccount() {
+    private void viewAccount(String username) {
         dispose(); 
-        new viewAccountFrame().setVisible(true);
+        new viewAccountFrame(username).setVisible(true);
     }
 
     // opens new login window when logout is clicked
