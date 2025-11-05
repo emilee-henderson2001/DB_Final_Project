@@ -58,6 +58,8 @@ public class MemberHomePage extends JFrame {
 
         options.add(createPrimaryButton("Logout", this::logout));
 
+
+
         content.add(header, BorderLayout.NORTH);
 
         // puts buttons into the middle of the screen

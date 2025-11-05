@@ -36,10 +36,16 @@ public class viewAccountFrame extends JFrame {
             new MemberHomePage(username).setVisible(true);
         });
         topPanel.add(backButton);
+
+        JLabel history = new JLabel("show all media " + username + " has streamed");
         content.add(topPanel, BorderLayout.NORTH);
+        content.add(history);
+
+
+        // Probably add a panel that shows a member's
+        // streaming history including timestamps
 
         setContentPane(content);
-
     }}
 
     // not really sure what all needs added here... figured this was where we could put account streaming info and such 
