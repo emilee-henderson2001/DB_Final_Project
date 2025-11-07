@@ -33,7 +33,7 @@ public class AdminMemberStreaming extends JFrame{
         // Back button
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         topPanel.setOpaque(false);
-        JButton backButton = new JButton("←");
+        JButton backButton = new JButton("Back");
         backButton.setFocusPainted(false);
         backButton.setBackground(new Color(66, 133, 244));
         backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
