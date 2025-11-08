@@ -1,6 +1,7 @@
 /*
  * This is the page where we will have buttons to direct member to different functions of the application 
  */
+package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

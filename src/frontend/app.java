@@ -1,3 +1,4 @@
+package frontend;
 import javax.swing.SwingUtilities;
 
 public class app {

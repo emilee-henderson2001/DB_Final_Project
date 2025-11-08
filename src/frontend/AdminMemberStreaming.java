@@ -1,28 +1,17 @@
-/*
- * This is the page where we will implement the search functionality
- */
-
+package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class searchFrame extends JFrame {
+public class AdminMemberStreaming extends JFrame{
     private final JTextField searchField = new JTextField();
-    private final JComboBox<String> filterBox = new JComboBox<>(new String[]{
-            "All",
-            "Actor",
-            "Director",
-            "Genre",
-            "Sequel(s)"
-    });
 
-
-    public searchFrame(String username) {
+    public AdminMemberStreaming(String username) {
 
         // Create pop-up window
-        setTitle("ACED Streaming - Movie Search");
+        setTitle("ACED Streaming - Admin Member Search");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(520, 550);
+        setSize(520, 500);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -45,13 +34,13 @@ public class searchFrame extends JFrame {
         // Back button
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         topPanel.setOpaque(false);
-        JButton backButton = new JButton("←");
+        JButton backButton = new JButton("Back");
         backButton.setFocusPainted(false);
         backButton.setBackground(new Color(66, 133, 244));
         backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         backButton.addActionListener(e -> {
             dispose();
-            new MemberHomePage(username).setVisible(true);
+            new AdminHomePage(username).setVisible(true);
         });
         topPanel.add(backButton);
         content.add(topPanel, BorderLayout.NORTH);
@@ -69,33 +58,9 @@ public class searchFrame extends JFrame {
             form.add(Box.createVerticalStrut(12));
         }
 
-        form.add(buildField("Search", searchField));
-        form.add(Box.createVerticalStrut(12));
-        form.add(buildField("Filter By", filterBox));
+        form.add(buildField("Search Movie", searchField));
         form.add(Box.createVerticalStrut(12));
 
-
-        //Button to show award-winning movies
-        JButton awardButton = new JButton("See Award Winning Movies!");
-        awardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        awardButton.setBackground(new Color(66, 133, 244));
-        awardButton.setForeground(Color.BLACK);
-        awardButton.setFocusPainted(false);
-        awardButton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
-        awardButton.addActionListener(e -> showAwardMovies());
-        form.add(awardButton);
-        form.add(Box.createVerticalStrut(12));
-
-        //Button to show series member hasn't watched
-        JButton newSeriesButton = new JButton("Discover new series!");
-        newSeriesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        newSeriesButton.setBackground(new Color(66, 133, 244));
-        newSeriesButton.setForeground(Color.BLACK);
-        newSeriesButton.setFocusPainted(false);
-        newSeriesButton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
-        newSeriesButton.addActionListener(e -> showNewSeries());
-        form.add(newSeriesButton);
-        form.add(Box.createVerticalStrut(12));
 
         // Search button
         JButton search = new JButton("Search");
@@ -110,7 +75,7 @@ public class searchFrame extends JFrame {
 
         form.add(search);
 
-    
+
         // add form and center it
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setOpaque(false);
@@ -148,26 +113,13 @@ public class searchFrame extends JFrame {
     // method to search
     private void attemptSearch() {
         String searchText = searchField.getText().trim();
-        String selectedFilter = (String) filterBox.getSelectedItem();
 
         if (searchText.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter something to search.");
             return;
         }
-
-        // just to show how the filter works
         JOptionPane.showMessageDialog(this,
-                "Searching for: " + searchText + "\nFilter: " + selectedFilter);
+                "Searching for all members who have streamed: " + searchText);
 
-    }
-
-    private void showAwardMovies(){
-        //runs query to show movies that have won awards
-        JOptionPane.showMessageDialog(this, "Showing Award Winning Movies!");
-    }
-
-    private void showNewSeries(){
-        //runs query to show series member hasn't watched
-        JOptionPane.showMessageDialog(this, "Showing new series!");
     }
 }

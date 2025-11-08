@@ -1,10 +1,12 @@
 /*
  * This is the page where we will allow login and direct to member or admin
  */
+package frontend;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import backend.*;
 
 public class LoginFrame extends JFrame {
     private final JTextField usernameField = new JTextField();
@@ -123,14 +125,19 @@ public class LoginFrame extends JFrame {
             return;
         }
 
-        
 
         SwingUtilities.invokeLater(() -> {
-            dispose(); // close the login frame
-            if ("admin".equalsIgnoreCase(user)) {
+            // close the login frame
+            if (BackendService.loginAdmin(user, pass)) {
                 new AdminHomePage(user).setVisible(true);
-            } else {
+                dispose();
+            } else if(BackendService.loginMember(user, pass))  {
                 new MemberHomePage(user).setVisible(true);
+                dispose();
+            }
+            else{
+                statusLabel.setText("Incorrect username or password.");
+                return;
             }
         });
     }
