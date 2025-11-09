@@ -94,6 +94,33 @@ public class QueryDAO {
 
         return results;
     }
+    private List<Member> getWatchHistoryByMedia(String mediaID) {
+        List<Member> results = new ArrayList<>();
+        if (mediaID == null || mediaID.isEmpty())
+            return results;
+        String sql;
+        sql = "SELECT mem.ID, mem.name " +
+                "FROM Member mem " +
+                "JOIN Watch_History wh ON mem.ID = wh.member_id " +
+                "WHERE wh.media_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, mediaID);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Member member = new Member(rs.getInt("ID"), rs.getString("name"));
+                    results.add(member);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
 
 
     // maps a ResultSet
@@ -105,4 +132,5 @@ public class QueryDAO {
                 rs.getString("release_date")
         );
     }
+
 }
