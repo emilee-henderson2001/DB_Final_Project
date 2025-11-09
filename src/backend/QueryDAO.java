@@ -66,7 +66,7 @@ public class QueryDAO {
         }
         return results;
     }
-    private List<Media> getWatchHistoryByUser(String userID) {
+    public List<Media> getWatchHistoryByUser(String userID) {
         List<Media> results = new ArrayList<>();
         if (userID == null || userID.isEmpty())
             return results;
@@ -94,23 +94,26 @@ public class QueryDAO {
 
         return results;
     }
-    private List<Member> getWatchHistoryByMedia(String mediaID) {
+    public List<Member> getWatchHistoryByMedia(String mediaTitle) {
         List<Member> results = new ArrayList<>();
-        if (mediaID == null || mediaID.isEmpty())
+        if (mediaTitle == null || mediaTitle.isEmpty())
             return results;
+
         String sql;
-        sql = "SELECT mem.ID, mem.name " +
+        sql = "SELECT mem.ID, mem.member_name " +
                 "FROM Member mem " +
                 "JOIN Watch_History wh ON mem.ID = wh.member_id " +
-                "WHERE wh.media_id = ?";
+                "JOIN Media m ON wh.media_id = m.media_ID " +
+                "WHERE m.title = ?";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, mediaID);
+            ps.setString(1, mediaTitle);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Member member = new Member(rs.getInt("ID"), rs.getString("name"));
+                    Member member = new Member(rs.getInt("ID"), rs.getString("member_name"));
                     results.add(member);
                 }
             }
@@ -121,6 +124,7 @@ public class QueryDAO {
 
         return results;
     }
+
 
 
     // maps a ResultSet

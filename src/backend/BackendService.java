@@ -20,4 +20,10 @@ public class BackendService {
     public static List<Media> searchMedia(String keyword, String filter) {
         return queryDAO.searchMedia(keyword, filter);
     }
+    public static List<Media> getWatchHistoryByUser(String keyword) {
+        return queryDAO.getWatchHistoryByUser(keyword);
+    }
+    public static List<Member> getWatchHistoryByMedia(String keyword) {
+        return queryDAO.getWatchHistoryByMedia(keyword);
+    }
 }

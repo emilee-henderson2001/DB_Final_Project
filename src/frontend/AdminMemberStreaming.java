@@ -2,7 +2,7 @@ package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-
+import backend.*;
 public class AdminMemberStreaming extends JFrame{
     private final JTextField searchField = new JTextField();
 
@@ -118,8 +118,36 @@ public class AdminMemberStreaming extends JFrame{
             JOptionPane.showMessageDialog(this, "Please enter something to search.");
             return;
         }
-        JOptionPane.showMessageDialog(this,
-                "Searching for all members who have streamed: " + searchText);
+        else{
+            JOptionPane.showMessageDialog(this,
+                    "Searching for all members who have streamed: " + searchText);
+            //call backend to get results
+            try{
+                java.util.List<Member> results = BackendService.getWatchHistoryByMedia(searchText);
+
+                if(results == null || results.isEmpty()){
+                    JOptionPane.showMessageDialog(this, "No results found ''" + searchText + "'.");
+                    return;
+                }
+                // Build a readable String for results
+                StringBuilder message = new StringBuilder("Results for " + searchText + ":\n\n");
+                for (Member m : results) {
+                    message.append("• ")
+                            .append(m.getMemberID())
+                            .append(" (").append(m.getMemberName())
+                            .append(")\n");
+                }
+                JOptionPane.showMessageDialog(this, message.toString(),
+                        "Search Results", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error while searching:\n" + e.getMessage(),
+                        "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
 
 
     }
