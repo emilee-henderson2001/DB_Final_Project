@@ -66,6 +66,35 @@ public class QueryDAO {
         }
         return results;
     }
+    private List<Media> getWatchHistory(String userID) {
+        List<Media> results = new ArrayList<>();
+        if (userID == null || userID.isEmpty())
+            return results;
+
+        String sql;
+        sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                "FROM Media m " +
+                "JOIN Watch_History wh ON m.media_id = wh.media_id " +
+                "WHERE wh.member_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, Integer.parseInt(userID));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(mapMedia(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
 
     // maps a ResultSet
     private Media mapMedia(ResultSet rs) throws SQLException {
