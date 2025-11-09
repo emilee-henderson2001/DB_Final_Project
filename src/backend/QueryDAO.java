@@ -66,7 +66,7 @@ public class QueryDAO {
         }
         return results;
     }
-    private List<Media> getWatchHistory(String userID) {
+    private List<Media> getWatchHistoryByUser(String userID) {
         List<Media> results = new ArrayList<>();
         if (userID == null || userID.isEmpty())
             return results;
