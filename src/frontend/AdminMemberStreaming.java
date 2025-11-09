@@ -121,5 +121,6 @@ public class AdminMemberStreaming extends JFrame{
         JOptionPane.showMessageDialog(this,
                 "Searching for all members who have streamed: " + searchText);
 
+
     }
 }

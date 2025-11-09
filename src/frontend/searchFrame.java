@@ -157,6 +157,10 @@ public class searchFrame extends JFrame {
             return;
         }
         else{
+            // just to show how the filter works
+            JOptionPane.showMessageDialog(this,
+                    "Searching for: " + searchText + "\nFilter: " + selectedFilter);
+
             // Call backend to get results from Railway
             try {
                 java.util.List<Media> results = BackendService.searchMedia(searchText, selectedFilter);
@@ -188,9 +192,7 @@ public class searchFrame extends JFrame {
         }
 
 
-        // just to show how the filter works
-        JOptionPane.showMessageDialog(this,
-                "Searching for: " + searchText + "\nFilter: " + selectedFilter);
+
 
     }
 

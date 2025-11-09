@@ -18,8 +18,8 @@ public class QueryDAO {
         switch (filter == null ? "All" : filter) {
             case "Actor":
                 sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
-                        "FROM media m " +
-                        "JOIN Acts a ON M.media_ID = a.media_ID " +
+                        "FROM Media m " +
+                        "JOIN Acts a ON m.media_ID = a.media_ID " +
                         "JOIN Actor_actress act ON a.ID = act.ID " +
                         "WHERE act.actor_name LIKE ?";
                 break;
