@@ -5,6 +5,8 @@ package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import backend.*;
+
 
 public class searchFrame extends JFrame {
     private final JTextField searchField = new JTextField();
@@ -110,7 +112,7 @@ public class searchFrame extends JFrame {
 
         form.add(search);
 
-    
+
         // add form and center it
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setOpaque(false);
@@ -154,6 +156,37 @@ public class searchFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Please enter something to search.");
             return;
         }
+        else{
+            // Call backend to get results from Railway
+            try {
+                java.util.List<Media> results = BackendService.searchMedia(searchText, selectedFilter);
+
+                if (results == null || results.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No results found ''" + searchText + "'.");
+                    return;
+                }
+
+                // Build a readable String for results
+                StringBuilder message = new StringBuilder("Results for " + searchText + ":\n\n");
+                for (Media m : results) {
+                    message.append("• ")
+                            .append(m.getTitle())
+                            .append(" (").append(m.getGenre())
+                            .append(", ").append(m.getReleaseDate())
+                            .append(")\n");
+                }
+
+                // Display your results message
+                JOptionPane.showMessageDialog(this, message.toString(),
+                        "Search Results", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error while searching:\n" + e.getMessage(),
+                        "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
 
         // just to show how the filter works
         JOptionPane.showMessageDialog(this,
