@@ -66,21 +66,22 @@ public class QueryDAO {
         }
         return results;
     }
-    public List<Media> getWatchHistoryByUser(String userID) {
+    public List<Media> getWatchHistoryByUser(String username) {
         List<Media> results = new ArrayList<>();
-        if (userID == null || userID.isEmpty())
+        if (username == null || username.isEmpty())
             return results;
 
-        String sql;
-        sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
-                "FROM Media m " +
-                "JOIN Watch_History wh ON m.media_id = wh.media_id " +
-                "WHERE wh.member_id = ?";
+        String sql =
+                "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                        "FROM Media m " +
+                        "JOIN Watch_History wh ON m.media_id = wh.media_id " +
+                        "JOIN Member mem ON wh.member_id = mem.ID " +
+                        "WHERE mem.username = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setInt(1, Integer.parseInt(userID));
+            ps.setString(1, username);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -94,6 +95,7 @@ public class QueryDAO {
 
         return results;
     }
+
     public List<Member> getWatchHistoryByMedia(String mediaTitle) {
         List<Member> results = new ArrayList<>();
         if (mediaTitle == null || mediaTitle.isEmpty())
@@ -239,11 +241,26 @@ public class QueryDAO {
 
     // maps a ResultSet
     private Media mapMedia(ResultSet rs) throws SQLException {
+        String mediaID = rs.getString("media_ID");
+
+        // Try to read season and episode — will be null/0 if not present (movie)
+        Integer season = null;
+        Integer episode = null;
+        try {
+            season = rs.getInt("season");
+            episode = rs.getInt("episode");
+        } catch (SQLException e) {
+            //ignore if not series
+        }
+
+        // Create Media object using your constructor, extended for series handling
         return new Media(
-                rs.getInt("media_ID"),
+                mediaID,
                 rs.getString("title"),
                 rs.getString("genre"),
-                rs.getString("release_date")
+                rs.getString("release_date"),
+                season,
+                episode
         );
     }
 
