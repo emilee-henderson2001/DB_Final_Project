@@ -93,7 +93,7 @@ public class AdminAnalyticsPage extends JFrame {
 
     // loads scaled logo
     private JLabel loadLogo() {
-        ImageIcon icon = new ImageIcon("ACEDLogo.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) return null;
 
         int targetWidth = 150;

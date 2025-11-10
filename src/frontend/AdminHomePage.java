@@ -84,7 +84,7 @@ public class AdminHomePage extends JFrame {
 
     // loads the picture
     private JLabel loadLogo() {
-        ImageIcon icon = new ImageIcon("ACEDLogo.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
             return null;
         }

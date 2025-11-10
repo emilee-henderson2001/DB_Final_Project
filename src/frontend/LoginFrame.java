@@ -92,7 +92,7 @@ public class LoginFrame extends JFrame {
 
     // method to add photo as label
     private JLabel buildLogoLabel() {
-        ImageIcon icon = new ImageIcon("ACEDLogo.png");
+        ImageIcon icon = new ImageIcon(getClass().getResource("/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
             return null;
         }
