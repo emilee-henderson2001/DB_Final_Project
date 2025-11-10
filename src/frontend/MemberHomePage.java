@@ -2,6 +2,9 @@
  * This is the page where we will have buttons to direct member to different functions of the application 
  */
 package frontend;
+import backend.BackendService;
+import backend.Media;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -53,7 +56,10 @@ public class MemberHomePage extends JFrame {
         options.add(createPrimaryButton("Search Movies", () -> searchPage(username)));
         options.add(Box.createVerticalStrut(12));
 
-        options.add(createPrimaryButton("View Account", () -> viewAccount(username)));
+        //options.add(createPrimaryButton("View Account", () -> viewAccount(username)));
+        //options.add(Box.createVerticalStrut(12));
+
+        options.add(createPrimaryButton("View History", () -> viewHistory(username)));
         options.add(Box.createVerticalStrut(12));
      
 
@@ -110,5 +116,32 @@ public class MemberHomePage extends JFrame {
     private void logout() {
         dispose();
         new LoginFrame().setVisible(true);
+    }
+
+    private void viewHistory(String username){
+        try{
+            java.util.List<Media> results = BackendService.getWatchHistoryByUser(username);
+
+            if(results == null || results.isEmpty()){
+                JOptionPane.showMessageDialog(this, "No results found ''" + username + "'.");
+                return;
+            }
+            // Build a readable String for results
+            StringBuilder message = new StringBuilder("Results for " + username + ":\n\n");
+            for (Media m : results) {
+                message.append("• ")
+                        .append(m.getMediaID())
+                        .append(" (").append(m.getTitle())
+                        .append(")\n");
+            }
+            JOptionPane.showMessageDialog(this, message.toString(),
+                    "Search Results", JOptionPane.INFORMATION_MESSAGE);
+
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error while searching:\n" + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

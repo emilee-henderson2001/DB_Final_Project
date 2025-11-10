@@ -39,31 +39,11 @@ public class viewAccountFrame extends JFrame {
         topPanel.add(backButton);
 
         JLabel history = new JLabel("show all media " + username + " has streamed");
+
         content.add(topPanel, BorderLayout.NORTH);
-        try{
-            java.util.List<Media> results = BackendService.getWatchHistoryByUser(username);
+        content.add(history);
 
-            if(results == null || results.isEmpty()){
-                JOptionPane.showMessageDialog(this, "No results found ''" + username + "'.");
-                return;
-            }
-            // Build a readable String for results
-            StringBuilder message = new StringBuilder("Results for " + username + ":\n\n");
-            for (Media m : results) {
-                message.append("• ")
-                        .append(m.getMediaID())
-                        .append(" (").append(m.getTitle())
-                        .append(")\n");
-            }
-            JOptionPane.showMessageDialog(this, message.toString(),
-                    "Search Results", JOptionPane.INFORMATION_MESSAGE);
-
-        }
-        catch(Exception e){
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error while searching:\n" + e.getMessage(),
-                    "Database Error", JOptionPane.ERROR_MESSAGE);
-        }
+        setContentPane(content);
     }
 
 
