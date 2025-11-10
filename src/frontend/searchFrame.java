@@ -5,6 +5,9 @@ package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.List;
+import java.util.Map;
+
 import backend.*;
 
 
@@ -17,9 +20,12 @@ public class searchFrame extends JFrame {
             "Genre",
             "Sequel(s)"
     });
+    private String username;
 
 
     public searchFrame(String username) {
+
+        this.username = username;
 
         // Create pop-up window
         setTitle("ACED Streaming - Movie Search");
@@ -196,13 +202,86 @@ public class searchFrame extends JFrame {
 
     }
 
-    private void showAwardMovies(){
-        //runs query to show movies that have won awards
-        JOptionPane.showMessageDialog(this, "Showing Award Winning Movies!");
+    // See Movies by Rewards
+    public void showAwardMovies() {
+        try {
+            java.util.List<java.util.Map<String, Object>> list = BackendService.getAwardWinningMovies();
+            if (list == null || list.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No award-winning movies found.");
+                return;
+            }
+
+            String[] columns = {"Title", "Genre", "Release Date", "Awards", "IMBD Link"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0);
+
+            for (java.util.Map<String, Object> row : list) {
+                model.addRow(new Object[]{
+                        row.get("title"),
+                        row.get("genre"),
+                        row.get("release_date"),
+                        row.get("awards"),
+                        row.get("IMBD_link")
+                });
+            }
+
+            JTable table = new JTable(model);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            table.setFillsViewportHeight(true);
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+            JOptionPane.showMessageDialog(this, scrollPane, "Award-Winning Movies", JOptionPane.PLAIN_MESSAGE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error loading award-winning movies:\n" + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    private void showNewSeries(){
-        //runs query to show series member hasn't watched
-        JOptionPane.showMessageDialog(this, "Showing new series!");
+    private void showNewSeries() {
+        try {
+            int userId = BackendService.getMemberIdByUsername(username); // 👈 converts username → ID
+            if (userId == -1) {
+                JOptionPane.showMessageDialog(this, "User not found in database.");
+                return;
+            }
+
+            List<Map<String, Object>> list = BackendService.getUnwatchedSeriesByUser(userId);
+            if (list == null || list.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No new series found!");
+                return;
+            }
+
+            String[] columns = {"Title", "Genre", "Release Date", "Season", "Episode", "IMBD Link"};
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0);
+
+            for (Map<String, Object> row : list) {
+                model.addRow(new Object[]{
+                        row.get("title"),
+                        row.get("genre"),
+                        row.get("release_date"),
+                        row.get("season"),
+                        row.get("episode"),
+                        row.get("IMBD_link")
+                });
+            }
+
+            JTable table = new JTable(model);
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+            JOptionPane.showMessageDialog(this, scrollPane, "Discover New Series!", JOptionPane.PLAIN_MESSAGE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                    "Error loading new series:\n" + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

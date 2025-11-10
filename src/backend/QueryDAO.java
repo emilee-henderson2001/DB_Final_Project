@@ -149,8 +149,93 @@ public class QueryDAO {
         return results;
     }
 
+    // Get Movie Awards.
+    public List<Map<String, Object>> getAwardWinningMovies() {
+        String sql = """
+        SELECT M.title,
+               M.genre,
+               M.release_date,
+               Md.IMBD_link,
+               GROUP_CONCAT(A.award_name SEPARATOR ', ') AS awards
+        FROM Movie M
+        JOIN Media Md ON M.media_ID = Md.media_ID
+        JOIN Earned E ON M.media_ID = E.media_ID
+        JOIN Award A ON E.award_name = A.award_name
+        GROUP BY M.title, M.genre, M.release_date, Md.IMBD_link
+        ORDER BY M.title;
+    """;
 
+        List<Map<String, Object>> result = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("title", rs.getString("title"));
+                row.put("genre", rs.getString("genre"));
+                row.put("release_date", rs.getString("release_date"));
+                row.put("IMBD_link", rs.getString("IMBD_link"));
+                row.put("awards", rs.getString("awards"));
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
+    // Get Unwatched Series.
+    public List<Map<String, Object>> getUnwatchedSeriesByUser(int memberId) {
+        String sql = """
+        SELECT S.title, S.genre, S.release_date, S.season, S.episode, M.IMBD_link
+        FROM Series S
+        JOIN Media M ON S.media_ID = M.media_ID
+        WHERE S.media_ID NOT IN (
+            SELECT media_ID
+            FROM Watch_History
+            WHERE member_id = ?
+        )
+        ORDER BY S.title;
+    """;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, memberId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("title", rs.getString("title"));
+                    row.put("genre", rs.getString("genre"));
+                    row.put("release_date", rs.getString("release_date"));
+                    row.put("season", rs.getInt("season"));
+                    row.put("episode", rs.getInt("episode"));
+                    row.put("IMBD_link", rs.getString("IMBD_link"));
+                    result.add(row);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // Get ID by username
+    public int getMemberIdByUsername(String username) {
+        String sql = "SELECT ID FROM Member WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("ID");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // return -1 if not found
+    }
 
     // maps a ResultSet
     private Media mapMedia(ResultSet rs) throws SQLException {

@@ -1,6 +1,7 @@
 package backend;
 
 import java.util.List;
+import java.util.Map;
 
 public class BackendService {
 
@@ -28,5 +29,20 @@ public class BackendService {
     }
     public static List<Media> getTop10PopularMedia(){
         return queryDAO.getTop10PopularMedia();
+    }
+
+    // Get Movie Awards.
+    public static List<Map<String, Object>> getAwardWinningMovies() {
+        return queryDAO.getAwardWinningMovies();
+    }
+
+    // See unwatched Movies/Series
+    public static List<Map<String, Object>> getUnwatchedSeriesByUser(int memberId) {
+        return queryDAO.getUnwatchedSeriesByUser(memberId);
+    }
+
+    // Get ID by username
+    public static int getMemberIdByUsername(String username) {
+        return queryDAO.getMemberIdByUsername(username);
     }
 }
