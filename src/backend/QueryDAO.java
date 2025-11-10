@@ -124,6 +124,31 @@ public class QueryDAO {
 
         return results;
     }
+    public List<Media> getTop10PopularMedia() {
+        List<Media> results = new ArrayList<>();
+        String sql;
+        sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, COUNT(wh.media_ID) AS watch_count " +
+                "FROM Media m " +
+                "JOIN Watch_History wh ON m.media_ID = wh.media_ID " +
+                "WHERE MONTH(wh.watch_date) = MONTH(CURRENT_DATE()) " +
+                "AND YEAR(wh.watch_date) = YEAR(CURRENT_DATE()) " +
+                "GROUP BY m.media_ID, m.title, m.genre, m.release_date " +
+                "ORDER BY watch_count DESC ";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(mapMedia(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
 
 
 

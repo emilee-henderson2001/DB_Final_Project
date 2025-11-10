@@ -26,4 +26,7 @@ public class BackendService {
     public static List<Member> getWatchHistoryByMedia(String keyword) {
         return queryDAO.getWatchHistoryByMedia(keyword);
     }
+    public static List<Media> getTop10PopularMedia(){
+        return queryDAO.getTop10PopularMedia();
+    }
 }

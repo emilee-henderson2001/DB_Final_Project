@@ -2,6 +2,7 @@ package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import backend.*;
 
 public class AdminAnalyticsPage extends JFrame {
     private static final Color GOLD = new Color(255, 215, 50);
@@ -104,6 +105,26 @@ public class AdminAnalyticsPage extends JFrame {
     private void viewMediaOfMonth(){
         //runs query to show top streamed of the month
         JOptionPane.showMessageDialog(this, "Showing top ten media of the month");
+        //call backend to get top 10
+        try{
+            java.util.List<Media> results = BackendService.getTop10PopularMedia();
+
+            //Build readable string
+            StringBuilder message = new StringBuilder("Results:\n\n");
+            for (Media m : results) {
+                message.append("• ")
+                        .append(m.getTitle())
+                        .append(" (").append(m.getGenre())
+                        .append(", ").append(m.getReleaseDate())
+                        .append(")\n");
+            }
+            JOptionPane.showMessageDialog(this, message.toString());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error while searching:\n" + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void viewTrend(){
