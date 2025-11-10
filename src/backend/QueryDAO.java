@@ -243,7 +243,7 @@ public class QueryDAO {
     private Media mapMedia(ResultSet rs) throws SQLException {
         String mediaID = rs.getString("media_ID");
 
-        // Try to read season and episode — will be null/0 if not present (movie)
+        // Try to read season and episode — will be null if movie
         Integer season = null;
         Integer episode = null;
         try {
@@ -253,7 +253,6 @@ public class QueryDAO {
             //ignore if not series
         }
 
-        // Create Media object using your constructor, extended for series handling
         return new Media(
                 mediaID,
                 rs.getString("title"),
