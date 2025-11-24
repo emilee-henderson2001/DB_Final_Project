@@ -8,6 +8,9 @@ public class AdminAnalyticsPage extends JFrame {
     private static final Color GOLD = new Color(255, 215, 50);
     private static final Color BLUE = new Color(66, 133, 244);
 
+    private JPanel centerPanel;
+    private JPanel formWrapper;
+
     public AdminAnalyticsPage(String username) {
 
         // create window
@@ -24,7 +27,7 @@ public class AdminAnalyticsPage extends JFrame {
 
 
         // back button
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
         JButton backButton = new JButton("←");
@@ -35,8 +38,20 @@ public class AdminAnalyticsPage extends JFrame {
             dispose();
             new AdminHomePage(username).setVisible(true);
         });
+        topPanel.add(backButton, BorderLayout.WEST);
 
-        topPanel.add(backButton);
+        JButton returnButton = new JButton("Return");
+        returnButton.setFocusPainted(false);
+        returnButton.setBackground(new Color(66, 133, 244));
+        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        returnButton.addActionListener(e -> {
+            centerPanel.removeAll();
+            centerPanel.add(formWrapper, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+        });
+        topPanel.add(returnButton, BorderLayout.EAST);
+        content.add(topPanel, BorderLayout.NORTH);
 
         // header
         JPanel header = new JPanel();
@@ -74,7 +89,13 @@ public class AdminAnalyticsPage extends JFrame {
         centerWrapper.setOpaque(false);
         centerWrapper.add(options);
 
-        content.add(centerWrapper, BorderLayout.CENTER);
+        formWrapper = centerWrapper;
+
+        centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(false);
+        centerPanel.add(formWrapper, BorderLayout.CENTER);
+
+        content.add(centerPanel, BorderLayout.CENTER);
 
         setContentPane(content);
     }
@@ -104,7 +125,6 @@ public class AdminAnalyticsPage extends JFrame {
 
     private void viewMediaOfMonth(){
         //runs query to show top streamed of the month
-        JOptionPane.showMessageDialog(this, "Showing top ten media of the month");
         //call backend to get top 10
         try{
             java.util.List<Media> results = BackendService.getTop10PopularMedia();
@@ -118,7 +138,28 @@ public class AdminAnalyticsPage extends JFrame {
                         .append(", ").append(m.getReleaseDate())
                         .append(")\n");
             }
-            JOptionPane.showMessageDialog(this, message.toString());
+            // Display results
+            String[] columns = {"Title", "Genre", "Release Date"};
+            javax.swing.table.DefaultTableModel model =
+                    new javax.swing.table.DefaultTableModel(columns, 0);
+
+            for (Media m : results) {
+                model.addRow(new Object[]{
+                        m.getTitle(),
+                        m.getGenre(),
+                        m.getReleaseDate()
+                });
+            }
+
+            JTable table = new JTable(model);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+            table.setFillsViewportHeight(true);
+
+            JScrollPane scrollPane = new JScrollPane(table);
+            scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+
+            showTableInCenter(scrollPane);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -130,5 +171,11 @@ public class AdminAnalyticsPage extends JFrame {
     private void viewTrend(){
         //runs query to show 24 hour trend
         JOptionPane.showMessageDialog(this, "Showing 24 hour trend");
+    }
+    private void showTableInCenter(JScrollPane scrollPane) {
+        centerPanel.removeAll();
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        centerPanel.revalidate();
+        centerPanel.repaint();
     }
 }

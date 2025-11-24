@@ -22,6 +22,9 @@ public class searchFrame extends JFrame {
     });
     private String username;
 
+    private JPanel centerPanel;
+    private JPanel formWrapper;
+
 
     public searchFrame(String username) {
 
@@ -51,7 +54,7 @@ public class searchFrame extends JFrame {
         content.setBackground(new Color(255, 215, 50));   // gold background
 
         // Back button
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         JButton backButton = new JButton("←");
         backButton.setFocusPainted(false);
@@ -61,7 +64,20 @@ public class searchFrame extends JFrame {
             dispose();
             new MemberHomePage(username).setVisible(true);
         });
-        topPanel.add(backButton);
+        topPanel.add(backButton, BorderLayout.WEST);
+
+        //return to search button
+        JButton returnButton = new JButton("Return to Search");
+        returnButton.setFocusPainted(false);
+        returnButton.setBackground(new Color(66, 133, 244));
+        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        returnButton.addActionListener(e -> {
+            centerPanel.removeAll();
+            centerPanel.add(formWrapper, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+        });
+        topPanel.add(returnButton, BorderLayout.EAST);
         content.add(topPanel, BorderLayout.NORTH);
 
         // Form setup
@@ -124,7 +140,13 @@ public class searchFrame extends JFrame {
         wrapper.setOpaque(false);
         wrapper.add(form);
 
-        content.add(wrapper, BorderLayout.CENTER);
+        formWrapper = wrapper;
+
+        centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(false);
+        centerPanel.add(formWrapper, BorderLayout.CENTER);
+
+        content.add(centerPanel, BorderLayout.CENTER);
         setContentPane(content);
     }
 
@@ -163,9 +185,6 @@ public class searchFrame extends JFrame {
             return;
         }
         else{
-            // just to show how the filter works
-            JOptionPane.showMessageDialog(this,
-                    "Searching for: " + searchText + "\nFilter: " + selectedFilter);
 
             // Call backend to get results from Railway
             try {
@@ -186,9 +205,28 @@ public class searchFrame extends JFrame {
                             .append(")\n");
                 }
 
-                // Display your results message
-                JOptionPane.showMessageDialog(this, message.toString(),
-                        "Search Results", JOptionPane.INFORMATION_MESSAGE);
+                // Display results
+                String[] columns = {"Title", "Genre", "Release Date"};
+                javax.swing.table.DefaultTableModel model =
+                        new javax.swing.table.DefaultTableModel(columns, 0);
+
+                for (Media m : results) {
+                    model.addRow(new Object[]{
+                            m.getTitle(),
+                            m.getGenre(),
+                            m.getReleaseDate()
+                    });
+                }
+
+                JTable table = new JTable(model);
+                table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                table.setFillsViewportHeight(true);
+
+                JScrollPane scrollPane = new JScrollPane(table);
+                scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+
+                showTableInCenter(scrollPane);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -231,7 +269,7 @@ public class searchFrame extends JFrame {
             JScrollPane scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
 
-            JOptionPane.showMessageDialog(this, scrollPane, "Award-Winning Movies", JOptionPane.PLAIN_MESSAGE);
+            showTableInCenter(scrollPane);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,7 +312,7 @@ public class searchFrame extends JFrame {
             JScrollPane scrollPane = new JScrollPane(table);
             scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
 
-            JOptionPane.showMessageDialog(this, scrollPane, "Discover New Series!", JOptionPane.PLAIN_MESSAGE);
+            showTableInCenter(scrollPane);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,5 +321,12 @@ public class searchFrame extends JFrame {
                     "Database Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+
+    }
+    private void showTableInCenter(JScrollPane scrollPane) {
+        centerPanel.removeAll();
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        centerPanel.revalidate();
+        centerPanel.repaint();
     }
 }

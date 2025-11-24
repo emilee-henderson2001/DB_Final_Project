@@ -6,6 +6,9 @@ import backend.*;
 public class AdminMemberStreaming extends JFrame{
     private final JTextField searchField = new JTextField();
 
+    private JPanel centerPanel;
+    private JPanel formWrapper;
+
     public AdminMemberStreaming(String username) {
 
         // Create pop-up window
@@ -32,7 +35,7 @@ public class AdminMemberStreaming extends JFrame{
         content.setBackground(new Color(255, 215, 50));   // gold background
 
         // Back button
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
         JButton backButton = new JButton("Back");
         backButton.setFocusPainted(false);
@@ -42,7 +45,21 @@ public class AdminMemberStreaming extends JFrame{
             dispose();
             new AdminHomePage(username).setVisible(true);
         });
-        topPanel.add(backButton);
+        topPanel.add(backButton, BorderLayout.WEST);
+        content.add(topPanel, BorderLayout.NORTH);
+
+        //return to search button
+        JButton returnButton = new JButton("Return to Search");
+        returnButton.setFocusPainted(false);
+        returnButton.setBackground(new Color(66, 133, 244));
+        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        returnButton.addActionListener(e -> {
+            centerPanel.removeAll();
+            centerPanel.add(formWrapper, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+        });
+        topPanel.add(returnButton, BorderLayout.EAST);
         content.add(topPanel, BorderLayout.NORTH);
 
         // Form setup
@@ -81,7 +98,13 @@ public class AdminMemberStreaming extends JFrame{
         wrapper.setOpaque(false);
         wrapper.add(form);
 
-        content.add(wrapper, BorderLayout.CENTER);
+        formWrapper = wrapper;
+
+        centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setOpaque(false);
+        centerPanel.add(formWrapper, BorderLayout.CENTER);
+
+        content.add(centerPanel, BorderLayout.CENTER);
         setContentPane(content);
     }
 
@@ -119,8 +142,7 @@ public class AdminMemberStreaming extends JFrame{
             return;
         }
         else{
-            JOptionPane.showMessageDialog(this,
-                    "Searching for all members who have streamed: " + searchText);
+
             //call backend to get results
             try{
                 java.util.List<Member> results = BackendService.getWatchHistoryByMedia(searchText);
@@ -135,10 +157,30 @@ public class AdminMemberStreaming extends JFrame{
                     message.append("• ")
                             .append(m.getMemberID())
                             .append(" (").append(m.getMemberName())
+                            //could add this for more info .append(" (").append(m.getMemberEmail())
                             .append(")\n");
                 }
-                JOptionPane.showMessageDialog(this, message.toString(),
-                        "Search Results", JOptionPane.INFORMATION_MESSAGE);
+                String[] columns = {"Member ID", "Member Name"};
+                javax.swing.table.DefaultTableModel model =
+                        new javax.swing.table.DefaultTableModel(columns, 0);
+
+                for (Member m : results) {
+                    model.addRow(new Object[]{
+                            m.getMemberID(),
+                            m.getMemberName(),
+                            // could add this for more info m.getMemberEmail()
+                    });
+                }
+
+                JTable table = new JTable(model);
+                table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                table.setFillsViewportHeight(true);
+
+                JScrollPane scrollPane = new JScrollPane(table);
+                scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
+
+
+                showTableInCenter(scrollPane);
 
             }
             catch(Exception e){
@@ -150,5 +192,11 @@ public class AdminMemberStreaming extends JFrame{
 
 
 
+    }
+    private void showTableInCenter(JScrollPane scrollPane) {
+        centerPanel.removeAll();
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        centerPanel.revalidate();
+        centerPanel.repaint();
     }
 }
