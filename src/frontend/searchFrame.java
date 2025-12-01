@@ -5,8 +5,14 @@ package frontend;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 import backend.*;
 
@@ -24,6 +30,7 @@ public class searchFrame extends JFrame {
 
     private JPanel centerPanel;
     private JPanel formWrapper;
+    private JButton returnButton;
 
 
     public searchFrame(String username) {
@@ -33,7 +40,8 @@ public class searchFrame extends JFrame {
         // Create pop-up window
         setTitle("ACED Streaming - Movie Search");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(520, 550);
+        setSize(900, 620);
+        setMinimumSize(new Dimension(900, 620));
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -66,16 +74,18 @@ public class searchFrame extends JFrame {
         });
         topPanel.add(backButton, BorderLayout.WEST);
 
-        //return to search button
-        JButton returnButton = new JButton("Return to Search");
+        // return to search button, shown after results are rendered
+        returnButton = new JButton("Return to Search");
         returnButton.setFocusPainted(false);
         returnButton.setBackground(new Color(66, 133, 244));
         returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        returnButton.setVisible(false);
         returnButton.addActionListener(e -> {
             centerPanel.removeAll();
             centerPanel.add(formWrapper, BorderLayout.CENTER);
             centerPanel.revalidate();
             centerPanel.repaint();
+            returnButton.setVisible(false);
         });
         topPanel.add(returnButton, BorderLayout.EAST);
         content.add(topPanel, BorderLayout.NORTH);
@@ -195,36 +205,18 @@ public class searchFrame extends JFrame {
                     return;
                 }
 
-                // Build a readable String for results
-                StringBuilder message = new StringBuilder("Results for " + searchText + ":\n\n");
-                for (Media m : results) {
-                    message.append("• ")
-                            .append(m.getTitle())
-                            .append(" (").append(m.getGenre())
-                            .append(", ").append(m.getReleaseDate())
-                            .append(")\n");
-                }
-
-                // Display results
-                String[] columns = {"Title", "Genre", "Release Date"};
-                javax.swing.table.DefaultTableModel model =
-                        new javax.swing.table.DefaultTableModel(columns, 0);
+                JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
+                grid.setOpaque(false);
 
                 for (Media m : results) {
-                    model.addRow(new Object[]{
-                            m.getTitle(),
-                            m.getGenre(),
-                            m.getReleaseDate()
-                    });
+                    grid.add(buildPosterCard(m));
                 }
 
-                JTable table = new JTable(model);
-                table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                table.setFillsViewportHeight(true);
-
-                JScrollPane scrollPane = new JScrollPane(table);
-                scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
-
+                JScrollPane scrollPane = new JScrollPane(grid);
+                scrollPane.setBorder(BorderFactory.createEmptyBorder());
+                scrollPane.setPreferredSize(new java.awt.Dimension(900, 360));
+                scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
                 showTableInCenter(scrollPane);
 
@@ -234,9 +226,6 @@ public class searchFrame extends JFrame {
                         "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-
-
-
 
     }
 
@@ -249,26 +238,28 @@ public class searchFrame extends JFrame {
                 return;
             }
 
-            String[] columns = {"Title", "Genre", "Release Date", "Awards", "IMBD Link"};
-            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0);
+            JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
+            grid.setOpaque(false);
 
             for (java.util.Map<String, Object> row : list) {
-                model.addRow(new Object[]{
-                        row.get("title"),
-                        row.get("genre"),
-                        row.get("release_date"),
-                        row.get("awards"),
-                        row.get("IMBD_link")
-                });
+                Media m = new Media(
+                        null,
+                        (String) row.get("title"),
+                        (String) row.get("genre"),
+                        (String) row.get("release_date"),
+                        null,
+                        null,
+                        (String) row.get("IMBD_link")
+                );
+                BackendService.enrichPoster(m);
+                grid.add(buildPosterCard(m));
             }
 
-            JTable table = new JTable(model);
-            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-            table.setFillsViewportHeight(true);
-
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
-
+            JScrollPane scrollPane = new JScrollPane(grid);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.setPreferredSize(new java.awt.Dimension(900, 360));
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             showTableInCenter(scrollPane);
 
         } catch (Exception e) {
@@ -294,24 +285,28 @@ public class searchFrame extends JFrame {
                 return;
             }
 
-            String[] columns = {"Title", "Genre", "Release Date", "Season", "Episode", "IMBD Link"};
-            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0);
+            JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
+            grid.setOpaque(false);
 
             for (Map<String, Object> row : list) {
-                model.addRow(new Object[]{
-                        row.get("title"),
-                        row.get("genre"),
-                        row.get("release_date"),
-                        row.get("season"),
-                        row.get("episode"),
-                        row.get("IMBD_link")
-                });
+                Media m = new Media(
+                        null,
+                        (String) row.get("title"),
+                        (String) row.get("genre"),
+                        (String) row.get("release_date"),
+                        (Integer) row.get("season"),
+                        (Integer) row.get("episode"),
+                        (String) row.get("IMBD_link")
+                );
+                BackendService.enrichPoster(m);
+                grid.add(buildPosterCard(m));
             }
 
-            JTable table = new JTable(model);
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new java.awt.Dimension(500, 300));
-
+            JScrollPane scrollPane = new JScrollPane(grid);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.setPreferredSize(new java.awt.Dimension(900, 360));
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
             showTableInCenter(scrollPane);
 
         } catch (Exception e) {
@@ -323,10 +318,154 @@ public class searchFrame extends JFrame {
         }
 
     }
+    private JPanel buildPosterCard(Media media) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setOpaque(false);
+        card.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        JLabel posterLabel = new JLabel(loadPosterIcon(media));
+        posterLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        posterLabel.setVerticalAlignment(SwingConstants.CENTER);
+        card.add(posterLabel, BorderLayout.CENTER);
+
+        JLabel titleLabel = new JLabel("<html><div style='text-align:center; width:140px;'>" + media.getTitle() + "</div></html>", SwingConstants.CENTER);
+        titleLabel.setForeground(Color.DARK_GRAY);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(6, 4, 4, 4));
+        card.add(titleLabel, BorderLayout.SOUTH);
+
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showDetailDialog(media);
+            }
+        });
+        return card;
+    }
+
+    private ImageIcon loadPosterIcon(Media media) {
+        int targetWidth = 140;
+        int targetHeight = 210;
+
+        String posterUrl = media.getPosterUrl();
+        try {
+            if (posterUrl != null && !posterUrl.isBlank()) {
+                Image img = ImageIO.read(new URL(posterUrl));
+                if (img != null) {
+                    return new ImageIcon(scaleImage(img, targetWidth, targetHeight));
+                }
+            }
+        } catch (Exception ignored) {
+            // fall through to placeholder
+        }
+
+        return new ImageIcon(createPlaceholderPoster(targetWidth, targetHeight, media.getTitle()));
+    }
+
+    private void showDetailDialog(Media media) {
+        JDialog dialog = new JDialog(this, media.getTitle(), true);
+        dialog.setSize(620, 760);
+        dialog.setMinimumSize(new Dimension(620, 760));
+        dialog.setLocationRelativeTo(this);
+
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+        root.setBackground(new Color(255, 215, 50));
+
+        JLabel poster = new JLabel(loadPosterIcon(media));
+        poster.setHorizontalAlignment(SwingConstants.CENTER);
+        root.add(poster, BorderLayout.NORTH);
+
+        JPanel info = new JPanel();
+        info.setOpaque(false);
+        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
+
+        info.add(buildInfoLabel("Title: " + media.getTitle()));
+        info.add(buildInfoLabel("Genre: " + media.getGenre()));
+        info.add(buildInfoLabel("Release: " + media.getReleaseDate()));
+        if (media.getSeason() != null) {
+            info.add(buildInfoLabel("Season: " + media.getSeason()));
+        }
+        if (media.getEpisode() != null) {
+            info.add(buildInfoLabel("Episode: " + media.getEpisode()));
+        }
+    
+
+        info.add(Box.createVerticalStrut(12));
+
+        JButton IMBDButton = new JButton("View on IMBD");
+        IMBDButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        IMBDButton.setBackground(new Color(66, 133, 244));
+        IMBDButton.setFocusPainted(false);
+        IMBDButton.addActionListener(e -> openIMBDLink(media));
+
+        info.add(IMBDButton);
+
+        root.add(info, BorderLayout.CENTER);
+
+        dialog.setContentPane(root);
+        dialog.setVisible(true);
+    }
+
+    private JLabel buildInfoLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setForeground(Color.DARK_GRAY);
+        label.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        return label;
+    }
+
+    private void openIMBDLink(Media media) {
+        String link = media.getImdbLink();
+        if (link == null || link.isBlank()) {
+            JOptionPane.showMessageDialog(this, "No stream link available for this title yet.");
+            return;
+        }
+
+        try {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(new URI(link));
+            } else {
+                JOptionPane.showMessageDialog(this, "Cannot open browser on this device.");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Unable to open link:\n" + e.getMessage());
+        }
+    }
+
+    private Image createPlaceholderPoster(int width, int height, String title) {
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(new Color(220, 220, 220));
+        g.fillRect(0, 0, width, height);
+        g.setColor(new Color(66, 133, 244));
+        g.drawRect(2, 2, width - 4, height - 4);
+
+        g.setColor(Color.DARK_GRAY);
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
+        String text = (title == null || title.isBlank()) ? "No Poster" : title;
+        if (text.length() > 22) {
+            text = text.substring(0, 22) + "...";
+        }
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int x = Math.max(6, (width - textWidth) / 2);
+        int y = height / 2;
+        g.drawString(text, x, y);
+        g.dispose();
+        return img;
+    }
+
+    private Image scaleImage(Image img, int width, int height) {
+        return img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+    }
     private void showTableInCenter(JScrollPane scrollPane) {
         centerPanel.removeAll();
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         centerPanel.revalidate();
         centerPanel.repaint();
+        if (returnButton != null) {
+            returnButton.setVisible(true);
+        }
     }
 }

@@ -7,6 +7,7 @@ public class BackendService {
 
     private static final UserDAO userDAO = new UserDAO();
     private static final QueryDAO queryDAO = new QueryDAO();
+    private static final PosterService posterService = new PosterService();
 
     // Authentication
     public static boolean loginMember(String username, String password) {
@@ -17,9 +18,27 @@ public class BackendService {
         return userDAO.validateAdmin(username, password);
     }
 
+    public static void enrichPoster(Media media) {
+        if (media == null) return;
+        try {
+            if (media.getPosterUrl() == null || media.getPosterUrl().isBlank()) {
+                String poster = posterService.resolvePosterUrl(media.getImdbLink());
+                media.setPosterUrl(poster);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // Search Movies/Series
     public static List<Media> searchMedia(String keyword, String filter) {
-        return queryDAO.searchMedia(keyword, filter);
+        List<Media> media = queryDAO.searchMedia(keyword, filter);
+
+        // best-effort poster lookup using IMDb links
+        for (Media m : media) {
+            enrichPoster(m);
+        }
+        return media;
     }
     public static List<Media> getWatchHistoryByUser(String keyword) {
         return queryDAO.getWatchHistoryByUser(keyword);

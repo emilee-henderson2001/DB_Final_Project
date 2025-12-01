@@ -11,7 +11,11 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 public class MemberHomePage extends JFrame {
     private static final Color GOLD = new Color(255, 215, 50);
@@ -38,24 +42,6 @@ public class MemberHomePage extends JFrame {
         JPanel northContainer = new JPanel();
         northContainer.setLayout(new BoxLayout(northContainer, BoxLayout.Y_AXIS));
         northContainer.setOpaque(false);
-
-        //Return button
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        topPanel.setOpaque(false);
-
-        JButton returnButton = new JButton("Return");
-        returnButton.setFocusPainted(false);
-        returnButton.setBackground(BLUE);
-        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        returnButton.addActionListener(e -> {
-            centerPanel.removeAll();
-            centerPanel.add(formWrapper, BorderLayout.CENTER);
-            centerPanel.revalidate();
-            centerPanel.repaint();
-        });
-        topPanel.add(returnButton);
-
-        northContainer.add(topPanel);
 
         // header
         JPanel header = new JPanel();
@@ -164,23 +150,19 @@ public class MemberHomePage extends JFrame {
                 return;
             }
 
-            String[] columns = {"Title", "Genre", "Release Date"};
-            DefaultTableModel model = new DefaultTableModel(columns, 0);
+            JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
+            grid.setOpaque(false);
 
             for (Media m : results) {
-                model.addRow(new Object[]{
-                        m.getTitle(),
-                        m.getGenre(),
-                        m.getReleaseDate()
-                });
+                BackendService.enrichPoster(m);
+                grid.add(buildPosterCard(m));
             }
 
-            JTable table = new JTable(model);
-            table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-            table.setFillsViewportHeight(true);
-
-            JScrollPane scrollPane = new JScrollPane(table);
-            scrollPane.setPreferredSize(new Dimension(500, 300));
+            JScrollPane scrollPane = new JScrollPane(grid);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.setPreferredSize(new Dimension(900, 360));
+            scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
             showTableInCenter(scrollPane);
 
@@ -198,5 +180,120 @@ public class MemberHomePage extends JFrame {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         centerPanel.revalidate();
         centerPanel.repaint();
+    }
+
+    private JPanel buildPosterCard(Media media) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setOpaque(false);
+        card.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+        JLabel posterLabel = new JLabel(loadPosterIcon(media));
+        posterLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        posterLabel.setVerticalAlignment(SwingConstants.CENTER);
+        card.add(posterLabel, BorderLayout.CENTER);
+
+        JLabel titleLabel = new JLabel("<html><div style='text-align:center; width:140px;'>" + media.getTitle() + "</div></html>", SwingConstants.CENTER);
+        titleLabel.setForeground(Color.DARK_GRAY);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(6, 4, 4, 4));
+        card.add(titleLabel, BorderLayout.SOUTH);
+
+        card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showDetailDialog(media);
+            }
+        });
+        return card;
+    }
+
+    private ImageIcon loadPosterIcon(Media media) {
+        int targetWidth = 140;
+        int targetHeight = 210;
+        String posterUrl = media.getPosterUrl();
+        try {
+            if (posterUrl != null && !posterUrl.isBlank()) {
+                java.net.URL url = new java.net.URL(posterUrl);
+                java.awt.Image img = ImageIO.read(url);
+                if (img != null) {
+                    return new ImageIcon(scaleImage(img, targetWidth, targetHeight));
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return new ImageIcon(createPlaceholderPoster(targetWidth, targetHeight, media.getTitle()));
+    }
+
+    private void showDetailDialog(Media media) {
+        JDialog dialog = new JDialog(this, media.getTitle(), true);
+        dialog.setSize(620, 760);
+        dialog.setMinimumSize(new Dimension(620, 760));
+        dialog.setLocationRelativeTo(this);
+
+        JPanel root = new JPanel(new BorderLayout(12, 12));
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+        root.setBackground(new Color(255, 215, 50));
+
+        JLabel poster = new JLabel(loadPosterIcon(media));
+        poster.setHorizontalAlignment(SwingConstants.CENTER);
+        root.add(poster, BorderLayout.NORTH);
+
+        JPanel info = new JPanel();
+        info.setOpaque(false);
+        info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
+
+        info.add(buildInfoLabel("Title: " + media.getTitle()));
+        info.add(buildInfoLabel("Genre: " + media.getGenre()));
+        info.add(buildInfoLabel("Release: " + media.getReleaseDate()));
+        if (media.getSeason() != null) {
+            info.add(buildInfoLabel("Season: " + media.getSeason()));
+        }
+        if (media.getEpisode() != null) {
+            info.add(buildInfoLabel("Episode: " + media.getEpisode()));
+        }
+        if (media.getImdbLink() != null && !media.getImdbLink().isBlank()) {
+            JLabel imdbLabel = buildInfoLabel("IMDb: " + media.getImdbLink());
+            imdbLabel.setForeground(Color.BLUE.darker());
+            info.add(imdbLabel);
+        }
+
+        root.add(info, BorderLayout.CENTER);
+        dialog.setContentPane(root);
+        dialog.setVisible(true);
+    }
+
+    private JLabel buildInfoLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setForeground(Color.DARK_GRAY);
+        label.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
+        return label;
+    }
+
+    private java.awt.Image createPlaceholderPoster(int width, int height, String title) {
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = img.createGraphics();
+        g.setColor(new Color(220, 220, 220));
+        g.fillRect(0, 0, width, height);
+        g.setColor(new Color(66, 133, 244));
+        g.drawRect(2, 2, width - 4, height - 4);
+
+        g.setColor(Color.DARK_GRAY);
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
+        String text = (title == null || title.isBlank()) ? "No Poster" : title;
+        if (text.length() > 22) {
+            text = text.substring(0, 22) + "...";
+        }
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int x = Math.max(6, (width - textWidth) / 2);
+        int y = height / 2;
+        g.drawString(text, x, y);
+        g.dispose();
+        return img;
+    }
+
+    private java.awt.Image scaleImage(java.awt.Image img, int width, int height) {
+        return img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
     }
 }

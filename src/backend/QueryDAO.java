@@ -17,7 +17,7 @@ public class QueryDAO {
 
         switch (filter == null ? "All" : filter) {
             case "Actor":
-                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "JOIN Acts a ON m.media_ID = a.media_ID " +
                         "JOIN Actor_actress act ON a.ID = act.ID " +
@@ -25,7 +25,7 @@ public class QueryDAO {
                 break;
 
             case "Director":
-                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "JOIN Directs d ON m.media_ID = d.media_ID " +
                         "JOIN Director dir ON d.ID = dir.ID " +
@@ -33,13 +33,13 @@ public class QueryDAO {
                 break;
 
             case "Genre":
-                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "WHERE m.genre LIKE ?";
                 break;
 
             case "Sequel":
-                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date " +
+                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "JOIN Movie mv ON m.media_ID = mv.media_ID " +
                         "JOIN Sequel s ON mv.media_ID = s.movie1_ID " +
@@ -47,7 +47,7 @@ public class QueryDAO {
                 break;
 
             default:
-                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m WHERE m.title LIKE ?";
                 break;
         }
@@ -72,7 +72,7 @@ public class QueryDAO {
             return results;
 
         String sql =
-                "SELECT m.media_ID, m.title, m.genre, m.release_date " +
+                "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "JOIN Watch_History wh ON m.media_id = wh.media_id " +
                         "JOIN Member mem ON wh.member_id = mem.ID " +
@@ -246,11 +246,17 @@ public class QueryDAO {
         // Try to read season and episode — will be null if movie
         Integer season = null;
         Integer episode = null;
+        String imdbLink = null;
         try {
             season = rs.getInt("season");
             episode = rs.getInt("episode");
         } catch (SQLException e) {
             //ignore if not series
+        }
+        try {
+            imdbLink = rs.getString("IMBD_link");
+        } catch (SQLException e) {
+            // ignore if not present in query
         }
 
         return new Media(
@@ -259,7 +265,8 @@ public class QueryDAO {
                 rs.getString("genre"),
                 rs.getString("release_date"),
                 season,
-                episode
+                episode,
+                imdbLink
         );
     }
 
