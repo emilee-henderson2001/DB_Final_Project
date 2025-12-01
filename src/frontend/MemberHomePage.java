@@ -128,7 +128,7 @@ public class MemberHomePage extends JFrame {
 
     // loads the logo
     private JLabel loadLogo() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("resources/ACEDLogo.png"));
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
             return null;
         }

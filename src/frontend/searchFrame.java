@@ -56,7 +56,7 @@ public class searchFrame extends JFrame {
         // Back button
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        JButton backButton = new JButton("←");
+        JButton backButton = new JButton("Back");
         backButton.setFocusPainted(false);
         backButton.setBackground(new Color(66, 133, 244));
         backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -152,7 +152,7 @@ public class searchFrame extends JFrame {
 
     // method to add photo as label
     private JLabel buildLogoLabel() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/ACEDLogo.png"));
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) {
             return null;
         }

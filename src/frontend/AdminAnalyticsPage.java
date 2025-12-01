@@ -30,7 +30,7 @@ public class AdminAnalyticsPage extends JFrame {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        JButton backButton = new JButton("←");
+        JButton backButton = new JButton("Back");
         backButton.setFocusPainted(false);
         backButton.setBackground(BLUE);
         backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -114,7 +114,7 @@ public class AdminAnalyticsPage extends JFrame {
 
     // loads scaled logo
     private JLabel loadLogo() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/ACEDLogo.png"));
+        ImageIcon icon = new ImageIcon(getClass().getResource("/resources/ACEDLogo.png"));
         if (icon.getIconWidth() <= 0 || icon.getIconHeight() <= 0) return null;
 
         int targetWidth = 150;
