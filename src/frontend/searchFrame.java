@@ -21,6 +21,7 @@ public class searchFrame extends JFrame {
     private final JTextField searchField = new JTextField();
     private final JComboBox<String> filterBox = new JComboBox<>(new String[]{
             "All",
+            "Title",
             "Actor",
             "Director",
             "Genre",

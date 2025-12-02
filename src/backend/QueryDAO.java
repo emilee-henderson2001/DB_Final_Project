@@ -45,16 +45,34 @@ public class QueryDAO {
                         "JOIN Sequel s ON mv.media_ID = s.movie1_ID " +
                         "WHERE m.title LIKE ?";
                 break;
-
-            default:
-                sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+            case "Title":
+                sql = "SELECT DISTINCT .media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m WHERE m.title LIKE ?";
+                break;
+            default:
+                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                        "FROM Media m " +
+                        "LEFT JOIN Acts a ON m.media_ID = a.media_ID " + //we need left join here so that search includes everything needed
+                        "LEFT JOIN Actor_actress act ON a.ID = act.ID " + //because these are linked via another table and not directly in
+                        "LEFT JOIN Directs d ON m.media_ID = d.media_ID " + //Media table
+                        "LEFT JOIN Director dir ON d.ID = dir.ID " +
+                        "WHERE m.title LIKE ? " +
+                        "OR m.genre LIKE ? " +
+                        "OR act.actor_name LIKE ? " +
+                        "OR dir.director_name LIKE ?";
                 break;
         }
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, like);
+
+            //if using 'all' search, we have to fill the rest of the parameters since we are using 'or' in the query
+            if(filter.equals("All")){
+                ps.setString(2, like);
+                ps.setString(3, like);
+                ps.setString(4, like);
+            }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     results.add(mapMedia(rs));
