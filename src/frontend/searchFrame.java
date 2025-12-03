@@ -377,7 +377,7 @@ public class searchFrame extends JFrame {
         poster.setHorizontalAlignment(SwingConstants.CENTER);
         root.add(poster, BorderLayout.NORTH);
 
-        JPanel info = new JPanel();
+        JPanel info = new JPanel(new BorderLayout());
         info.setOpaque(false);
         info.setLayout(new BoxLayout(info, BoxLayout.Y_AXIS));
 
@@ -399,8 +399,15 @@ public class searchFrame extends JFrame {
         IMBDButton.setBackground(new Color(66, 133, 244));
         IMBDButton.setFocusPainted(false);
         IMBDButton.addActionListener(e -> openIMBDLink(media));
+        info.add(IMBDButton, BorderLayout.EAST);
 
-        info.add(IMBDButton);
+
+        JButton streamButton = new JButton("Stream");
+        streamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        streamButton.setBackground(new Color(66, 133, 244));
+        streamButton.setFocusPainted(false);
+        streamButton.addActionListener(e -> streamMedia(media));
+        info.add(streamButton, BorderLayout.EAST);
 
         root.add(info, BorderLayout.CENTER);
 
@@ -410,7 +417,7 @@ public class searchFrame extends JFrame {
 
     private JLabel buildInfoLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setForeground(Color.DARK_GRAY);
         label.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
         return label;
@@ -468,5 +475,13 @@ public class searchFrame extends JFrame {
         if (returnButton != null) {
             returnButton.setVisible(true);
         }
+    }
+
+    private void streamMedia(Media media){
+
+        JOptionPane.showMessageDialog(null, "Now streaming " + media.getTitle());
+
+        //Add logic for tracking stream
+
     }
 }
