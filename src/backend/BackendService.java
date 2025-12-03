@@ -64,4 +64,11 @@ public class BackendService {
     public static int getMemberIdByUsername(String username) {
         return queryDAO.getMemberIdByUsername(username);
     }
+
+    //add streamed media to watch history
+    public static void addMediaToWatchHistory(int memberID, String mediaId) throws Exception{
+        queryDAO.addMediaToWatchHistory(memberID,mediaId);
+    }
 }
+
+

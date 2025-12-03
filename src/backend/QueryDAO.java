@@ -256,6 +256,21 @@ public class QueryDAO {
         }
         return -1; // return -1 if not found
     }
+    public void addMediaToWatchHistory(int memberID, String mediaID) throws SQLException{
+        String sql = """ 
+                INSERT INTO Watch_History(member_id, media_id, watch_date)
+                     VALUES (?, ?, NOW());
+                """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)){
+                 ps.setInt(1, memberID);
+                 ps.setString(2, mediaID);
+                 ps.execute();
+        }
+        catch(SQLException e){
+                 e.printStackTrace();
+        }
+    }
 
     // maps a ResultSet
     private Media mapMedia(ResultSet rs) throws SQLException {

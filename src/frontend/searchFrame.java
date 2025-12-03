@@ -482,6 +482,14 @@ public class searchFrame extends JFrame {
         JOptionPane.showMessageDialog(null, "Now streaming " + media.getTitle());
 
         //Add logic for tracking stream
+        int userId = BackendService.getMemberIdByUsername(username);
+        String mediaId = media.getMediaID();
+        try{
+            BackendService.addMediaToWatchHistory(userId, mediaId);
+        }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null, "Unable to add media to watch history");
+        }
 
     }
 }
