@@ -21,6 +21,8 @@ public class searchFrame extends JFrame {
     private final JTextField searchField = new JTextField();
     private final JComboBox<String> filterBox = new JComboBox<>(new String[]{
             "All",
+            "Series",
+            "Movie",
             "Title",
             "Actor",
             "Director",
@@ -191,14 +193,19 @@ public class searchFrame extends JFrame {
         String searchText = searchField.getText().trim();
         String selectedFilter = (String) filterBox.getSelectedItem();
 
-        if (searchText.isEmpty()) {
+        boolean isAllFilter = "All".equals(selectedFilter);
+        boolean isSeriesFilter = "Series".equals(selectedFilter);
+        boolean isMovieFilter = "Movie".equals(selectedFilter);
+        if (searchText.isEmpty() && !(isAllFilter || isSeriesFilter || isMovieFilter)) {
             JOptionPane.showMessageDialog(this, "Please enter something to search.");
             return;
-        }
-        else{
+        } else {
 
             // Call backend to get results from Railway
             try {
+                // When filter is "All" and no text entered, fetch all media
+                // When filter is "Series" and no text entered, fetch all series only
+                // When filter is "Movie" and no text entered, fetch all movies only
                 java.util.List<Media> results = BackendService.searchMedia(searchText, selectedFilter);
 
                 if (results == null || results.isEmpty()) {

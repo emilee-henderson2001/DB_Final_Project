@@ -9,13 +9,34 @@ public class QueryDAO {
     // Search Media by keyword
     public List<Media> searchMedia(String keyword, String filter) {
         List<Media> results = new ArrayList<>();
-        if (keyword == null || keyword.isEmpty())
+
+        String effectiveFilter = (filter == null ? "All" : filter);
+        boolean isAll = "All".equals(effectiveFilter);
+        boolean isSeries = "Series".equals(effectiveFilter);
+        boolean isMovie = "Movie".equals(effectiveFilter);
+        boolean returnAllMedia = isAll && (keyword == null || keyword.isEmpty());
+        boolean returnAllSeries = isSeries && (keyword == null || keyword.isEmpty());
+        boolean returnAllMovies = isMovie && (keyword == null || keyword.isEmpty());
+
+        // If not returning all media/series, and no keyword was provided, there is nothing to search
+        if (!(returnAllMedia || returnAllSeries || returnAllMovies) && (keyword == null || keyword.isEmpty()))
             return results;
 
-        String like = "%" + keyword + "%";
+        String like = "%" + (keyword == null ? "" : keyword) + "%";
         String sql;
 
-        switch (filter == null ? "All" : filter) {
+        if (returnAllMedia) {
+            // Show all movies and series
+            sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link FROM Media m";
+        } else if (returnAllSeries) {
+            // Show all series only
+            sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                    "FROM Series s JOIN Media m ON s.media_ID = m.media_ID";
+        } else if (returnAllMovies) {
+            // Show all movies only
+            sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                    "FROM Movie mv JOIN Media m ON mv.media_ID = m.media_ID";
+        } else switch (effectiveFilter) {
             case "Actor":
                 sql = "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
@@ -39,14 +60,25 @@ public class QueryDAO {
                 break;
 
             case "Sequel":
+            case "Sequel(s)":
                 sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m " +
                         "JOIN Movie mv ON m.media_ID = mv.media_ID " +
                         "JOIN Sequel s ON mv.media_ID = s.movie1_ID " +
                         "WHERE m.title LIKE ?";
                 break;
+            case "Series":
+                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                        "FROM Series s JOIN Media m ON s.media_ID = m.media_ID " +
+                        "WHERE m.title LIKE ?";
+                break;
+            case "Movie":
+                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                        "FROM Movie mv JOIN Media m ON mv.media_ID = m.media_ID " +
+                        "WHERE m.title LIKE ?";
+                break;
             case "Title":
-                sql = "SELECT DISTINCT .media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                sql = "SELECT DISTINCT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
                         "FROM Media m WHERE m.title LIKE ?";
                 break;
             default:
@@ -65,13 +97,15 @@ public class QueryDAO {
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, like);
+            if (!(returnAllMedia || returnAllSeries || returnAllMovies)) {
+                ps.setString(1, like);
 
-            //if using 'all' search, we have to fill the rest of the parameters since we are using 'or' in the query
-            if(filter.equals("All")){
-                ps.setString(2, like);
-                ps.setString(3, like);
-                ps.setString(4, like);
+                // if using 'All' search (with keyword), we have to fill the rest of the parameters since we are using 'OR' in the query
+                if (isAll) {
+                    ps.setString(2, like);
+                    ps.setString(3, like);
+                    ps.setString(4, like);
+                }
             }
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
