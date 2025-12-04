@@ -128,7 +128,8 @@ public class QueryDAO {
                         "FROM Media m " +
                         "JOIN Watch_History wh ON m.media_id = wh.media_id " +
                         "JOIN Member mem ON wh.member_id = mem.ID " +
-                        "WHERE mem.username = ?";
+                        "WHERE mem.username = ?" +
+                        "ORDER BY wh.watch_date DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -154,11 +155,12 @@ public class QueryDAO {
             return results;
 
         String sql;
-        sql = "SELECT mem.ID, mem.member_name " +
+        sql = "SELECT mem.ID, mem.member_name, wh.watch_date " +
                 "FROM Member mem " +
                 "JOIN Watch_History wh ON mem.ID = wh.member_id " +
                 "JOIN Media m ON wh.media_id = m.media_ID " +
-                "WHERE m.title = ?";
+                "WHERE m.title = ?" +
+                "ORDER BY wh.watch_date DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
