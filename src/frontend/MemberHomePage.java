@@ -150,11 +150,13 @@ public class MemberHomePage extends JFrame {
                 return;
             }
 
-            JPanel grid = new JPanel(new GridLayout(0, 3, 12, 12));
+            JPanel grid = new JPanel(new GridLayout(0, 2, 12, 12));
             grid.setOpaque(false);
 
             for (Media m : results) {
+
                 BackendService.enrichPoster(m);
+
                 grid.add(buildPosterCard(m));
             }
 
