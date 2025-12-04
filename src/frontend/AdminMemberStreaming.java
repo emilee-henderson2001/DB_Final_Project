@@ -48,19 +48,7 @@ public class AdminMemberStreaming extends JFrame{
         topPanel.add(backButton, BorderLayout.WEST);
         content.add(topPanel, BorderLayout.NORTH);
 
-        //return to search button
-        JButton returnButton = new JButton("Return to Search");
-        returnButton.setFocusPainted(false);
-        returnButton.setBackground(new Color(66, 133, 244));
-        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        returnButton.addActionListener(e -> {
-            centerPanel.removeAll();
-            centerPanel.add(formWrapper, BorderLayout.CENTER);
-            centerPanel.revalidate();
-            centerPanel.repaint();
-        });
-        topPanel.add(returnButton, BorderLayout.EAST);
-        content.add(topPanel, BorderLayout.NORTH);
+    
 
         // Form setup
         JPanel form = new JPanel();

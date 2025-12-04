@@ -40,18 +40,6 @@ public class AdminAnalyticsPage extends JFrame {
         });
         topPanel.add(backButton, BorderLayout.WEST);
 
-        JButton returnButton = new JButton("Return");
-        returnButton.setFocusPainted(false);
-        returnButton.setBackground(new Color(66, 133, 244));
-        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        returnButton.addActionListener(e -> {
-            centerPanel.removeAll();
-            centerPanel.add(formWrapper, BorderLayout.CENTER);
-            centerPanel.revalidate();
-            centerPanel.repaint();
-        });
-        topPanel.add(returnButton, BorderLayout.EAST);
-        content.add(topPanel, BorderLayout.NORTH);
 
         // header
         JPanel header = new JPanel();
