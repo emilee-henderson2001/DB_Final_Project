@@ -1,5 +1,7 @@
 package backend;
 
+import java.sql.Timestamp;
+
 public class Media {
     private String mediaID;
     private String title;
@@ -9,6 +11,7 @@ public class Media {
     private Integer episode;
     private String imdbLink;
     private String posterUrl;
+    private Timestamp watchDate;
 
     public Media(String mediaID, String title, String genre, String releaseDate) {
         this.mediaID = mediaID;
@@ -67,5 +70,12 @@ public class Media {
 
     public void setPosterUrl(String posterUrl) {
         this.posterUrl = posterUrl;
+    }
+    public Timestamp getWatchDate() {
+        return watchDate;
+    }
+
+    public void setWatchDate(Timestamp watchDate) {
+        this.watchDate = watchDate;
     }
 }

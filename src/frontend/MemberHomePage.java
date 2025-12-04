@@ -156,7 +156,6 @@ public class MemberHomePage extends JFrame {
             for (Media m : results) {
 
                 BackendService.enrichPoster(m);
-
                 grid.add(buildPosterCard(m));
             }
 
@@ -247,6 +246,7 @@ public class MemberHomePage extends JFrame {
         info.add(buildInfoLabel("Title: " + media.getTitle()));
         info.add(buildInfoLabel("Genre: " + media.getGenre()));
         info.add(buildInfoLabel("Release: " + media.getReleaseDate()));
+
         if (media.getSeason() != null) {
             info.add(buildInfoLabel("Season: " + media.getSeason()));
         }
@@ -257,6 +257,9 @@ public class MemberHomePage extends JFrame {
             JLabel imdbLabel = buildInfoLabel("IMDb: " + media.getImdbLink());
             imdbLabel.setForeground(Color.BLUE.darker());
             info.add(imdbLabel);
+        }
+        if (media.getWatchDate() != null) {
+            info.add(buildInfoLabel("Watch Date: " + media.getWatchDate()));
         }
 
         root.add(info, BorderLayout.CENTER);

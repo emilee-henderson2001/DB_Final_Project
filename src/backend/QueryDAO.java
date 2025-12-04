@@ -124,7 +124,7 @@ public class QueryDAO {
             return results;
 
         String sql =
-                "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link " +
+                "SELECT m.media_ID, m.title, m.genre, m.release_date, m.IMBD_link, wh.watch_date " +
                         "FROM Media m " +
                         "JOIN Watch_History wh ON m.media_id = wh.media_id " +
                         "JOIN Member mem ON wh.member_id = mem.ID " +
@@ -314,6 +314,7 @@ public class QueryDAO {
         Integer season = null;
         Integer episode = null;
         String imdbLink = null;
+        Timestamp watchDate = null;
         try {
             season = rs.getInt("season");
             episode = rs.getInt("episode");
@@ -325,8 +326,12 @@ public class QueryDAO {
         } catch (SQLException e) {
             // ignore if not present in query
         }
-
-        return new Media(
+        try{
+            watchDate = rs.getTimestamp("watch_date");
+        } catch (SQLException e) {
+            //ignore if not present in query
+        }
+        Media m = new Media(
                 mediaID,
                 rs.getString("title"),
                 rs.getString("genre"),
@@ -335,6 +340,10 @@ public class QueryDAO {
                 episode,
                 imdbLink
         );
+        if(watchDate != null){
+            m.setWatchDate(watchDate);
+        }
+        return m;
     }
 
 }
