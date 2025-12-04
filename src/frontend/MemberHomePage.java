@@ -6,23 +6,21 @@ package frontend;
 
 import backend.BackendService;
 import backend.Media;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.List;
-import javax.imageio.ImageIO;
+
+import static frontend.UIStyle.*;
 
 public class MemberHomePage extends JFrame {
-    private static final Color GOLD = new Color(255, 215, 50);
-    private static final Color BLUE = new Color(66, 133, 244);
 
     private JPanel centerPanel;
     private JPanel formWrapper;
+    private JButton backButton;
 
     public MemberHomePage(String username) {
 
@@ -56,7 +54,7 @@ public class MemberHomePage extends JFrame {
         }
 
         JLabel welcome = new JLabel("Welcome, " + username + "!", SwingConstants.CENTER);
-        welcome.setFont(new Font("SansSerif", Font.BOLD, 20));
+        welcome.setFont(HEADING_FONT);
         welcome.setForeground(Color.DARK_GRAY);
         welcome.setAlignmentX(Component.CENTER_ALIGNMENT);
         header.add(welcome);
@@ -95,6 +93,21 @@ public class MemberHomePage extends JFrame {
 
         content.add(centerPanel, BorderLayout.CENTER);
 
+        // footer/back control (shown when viewing history)
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        footer.setOpaque(false);
+        backButton = primaryButton("Return to Home");
+        backButton.setVisible(false);
+        backButton.addActionListener(e -> {
+            centerPanel.removeAll();
+            centerPanel.add(formWrapper, BorderLayout.CENTER);
+            centerPanel.revalidate();
+            centerPanel.repaint();
+            backButton.setVisible(false);
+        });
+        footer.add(backButton);
+        content.add(footer, BorderLayout.SOUTH);
+
         setContentPane(content);
     }
 
@@ -102,12 +115,8 @@ public class MemberHomePage extends JFrame {
 
     // creates the main buttons and wires up actions
     private JButton createPrimaryButton(String label, Runnable action) {
-        JButton button = new JButton(label);
+        JButton button = primaryButton(label);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setBackground(BLUE);
-        button.setForeground(Color.BLACK);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
         button.addActionListener(event -> action.run());
         return button;
     }
@@ -151,11 +160,10 @@ public class MemberHomePage extends JFrame {
             }
 
             JPanel grid = new JPanel(new GridLayout(0, 2, 12, 12));
+            grid.setBorder(BorderFactory.createEmptyBorder(6, 0, 6, 0));
             grid.setOpaque(false);
 
             for (Media m : results) {
-
-                BackendService.enrichPoster(m);
                 grid.add(buildPosterCard(m));
             }
 
@@ -166,6 +174,7 @@ public class MemberHomePage extends JFrame {
             scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
             showTableInCenter(scrollPane);
+            backButton.setVisible(true);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,6 +203,7 @@ public class MemberHomePage extends JFrame {
         card.add(posterLabel, BorderLayout.CENTER);
 
         JLabel titleLabel = new JLabel("<html><div style='text-align:center; width:140px;'>" + media.getTitle() + "</div></html>", SwingConstants.CENTER);
+        titleLabel.setFont(BASE_FONT);
         titleLabel.setForeground(Color.DARK_GRAY);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(6, 4, 4, 4));
         card.add(titleLabel, BorderLayout.SOUTH);
@@ -211,16 +221,9 @@ public class MemberHomePage extends JFrame {
     private ImageIcon loadPosterIcon(Media media) {
         int targetWidth = 140;
         int targetHeight = 210;
-        String posterUrl = media.getPosterUrl();
-        try {
-            if (posterUrl != null && !posterUrl.isBlank()) {
-                java.net.URL url = new java.net.URL(posterUrl);
-                java.awt.Image img = ImageIO.read(url);
-                if (img != null) {
-                    return new ImageIcon(scaleImage(img, targetWidth, targetHeight));
-                }
-            }
-        } catch (Exception ignored) {
+        ImageIcon icon = PosterLoader.load(media, targetWidth, targetHeight);
+        if (icon != null) {
+            return icon;
         }
         return new ImageIcon(createPlaceholderPoster(targetWidth, targetHeight, media.getTitle()));
     }
@@ -270,6 +273,7 @@ public class MemberHomePage extends JFrame {
     private JLabel buildInfoLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        label.setFont(BASE_FONT);
         label.setForeground(Color.DARK_GRAY);
         label.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
         return label;
@@ -296,9 +300,5 @@ public class MemberHomePage extends JFrame {
         g.drawString(text, x, y);
         g.dispose();
         return img;
-    }
-
-    private java.awt.Image scaleImage(java.awt.Image img, int width, int height) {
-        return img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
     }
 }

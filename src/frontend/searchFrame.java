@@ -9,12 +9,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
 
 import backend.*;
+
+import static frontend.UIStyle.*;
 
 
 public class searchFrame extends JFrame {
@@ -49,7 +49,7 @@ public class searchFrame extends JFrame {
         setResizable(false);
 
         // Make the box for search
-        Font smallFont = new Font("SansSerif", Font.PLAIN, 13);
+        Font smallFont = BASE_FONT;
         Insets smallMargin = new Insets(1, 6, 1, 6);
         Dimension compactSize = new Dimension(160, 24);
 
@@ -62,15 +62,13 @@ public class searchFrame extends JFrame {
         // create panel to add content
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(24, 24, 24, 24));
-        content.setBackground(new Color(255, 215, 50));   // gold background
+        content.setBackground(GOLD);   // gold background
 
         // Back button
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        JButton backButton = new JButton("Back");
-        backButton.setFocusPainted(false);
-        backButton.setBackground(new Color(66, 133, 244));
-        backButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        JButton backButton = new JButton("Return to Home");
+        styleButton(backButton, new Insets(6, 12, 6, 12));
         backButton.addActionListener(e -> {
             dispose();
             new MemberHomePage(username).setVisible(true);
@@ -79,9 +77,7 @@ public class searchFrame extends JFrame {
 
         // return to search button, shown after results are rendered
         returnButton = new JButton("Return to Search");
-        returnButton.setFocusPainted(false);
-        returnButton.setBackground(new Color(66, 133, 244));
-        returnButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        styleButton(returnButton, new Insets(6, 12, 6, 12));
         returnButton.setVisible(false);
         returnButton.addActionListener(e -> {
             centerPanel.removeAll();
@@ -115,10 +111,7 @@ public class searchFrame extends JFrame {
         //Button to show award-winning movies
         JButton awardButton = new JButton("See Award Winning Movies!");
         awardButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        awardButton.setBackground(new Color(66, 133, 244));
-        awardButton.setForeground(Color.BLACK);
-        awardButton.setFocusPainted(false);
-        awardButton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
+        styleButton(awardButton);
         awardButton.addActionListener(e -> showAwardMovies());
         form.add(awardButton);
         form.add(Box.createVerticalStrut(12));
@@ -126,10 +119,7 @@ public class searchFrame extends JFrame {
         //Button to show series member hasn't watched
         JButton newSeriesButton = new JButton("Discover new series!");
         newSeriesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        newSeriesButton.setBackground(new Color(66, 133, 244));
-        newSeriesButton.setForeground(Color.BLACK);
-        newSeriesButton.setFocusPainted(false);
-        newSeriesButton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
+        styleButton(newSeriesButton);
         newSeriesButton.addActionListener(e -> showNewSeries());
         form.add(newSeriesButton);
         form.add(Box.createVerticalStrut(12));
@@ -137,9 +127,7 @@ public class searchFrame extends JFrame {
         // Search button
         JButton search = new JButton("Search");
         search.setAlignmentX(Component.CENTER_ALIGNMENT);
-        search.setBackground(new Color(66, 133, 244));
-        search.setForeground(Color.BLACK);
-        search.setFocusPainted(false);
+        styleButton(search);
         search.addActionListener(event -> attemptSearch());
 
         // allow pressing enter to trigger login action listener
@@ -182,8 +170,9 @@ public class searchFrame extends JFrame {
         panel.setOpaque(false);
         panel.setBorder(new EmptyBorder(4, 0, 4, 0));
         JLabel jLabel = new JLabel(label);
-        jLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        jLabel.setFont(BASE_FONT);
         panel.add(jLabel, BorderLayout.NORTH);
+        field.setFont(BASE_FONT);
         panel.add(field, BorderLayout.CENTER);
         return panel;
     }
@@ -259,7 +248,6 @@ public class searchFrame extends JFrame {
                         null,
                         (String) row.get("IMBD_link")
                 );
-                BackendService.enrichPoster(m);
                 grid.add(buildPosterCard(m));
             }
 
@@ -306,7 +294,6 @@ public class searchFrame extends JFrame {
                         (Integer) row.get("episode"),
                         (String) row.get("IMBD_link")
                 );
-                BackendService.enrichPoster(m);
                 grid.add(buildPosterCard(m));
             }
 
@@ -337,6 +324,7 @@ public class searchFrame extends JFrame {
         card.add(posterLabel, BorderLayout.CENTER);
 
         JLabel titleLabel = new JLabel("<html><div style='text-align:center; width:140px;'>" + media.getTitle() + "</div></html>", SwingConstants.CENTER);
+        titleLabel.setFont(BASE_FONT);
         titleLabel.setForeground(Color.DARK_GRAY);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(6, 4, 4, 4));
         card.add(titleLabel, BorderLayout.SOUTH);
@@ -355,18 +343,10 @@ public class searchFrame extends JFrame {
         int targetWidth = 140;
         int targetHeight = 210;
 
-        String posterUrl = media.getPosterUrl();
-        try {
-            if (posterUrl != null && !posterUrl.isBlank()) {
-                Image img = ImageIO.read(new URL(posterUrl));
-                if (img != null) {
-                    return new ImageIcon(scaleImage(img, targetWidth, targetHeight));
-                }
-            }
-        } catch (Exception ignored) {
-            // fall through to placeholder
+        ImageIcon icon = PosterLoader.load(media, targetWidth, targetHeight);
+        if (icon != null) {
+            return icon;
         }
-
         return new ImageIcon(createPlaceholderPoster(targetWidth, targetHeight, media.getTitle()));
     }
 
@@ -403,16 +383,14 @@ public class searchFrame extends JFrame {
 
         JButton IMBDButton = new JButton("View on IMBD");
         IMBDButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        IMBDButton.setBackground(new Color(66, 133, 244));
-        IMBDButton.setFocusPainted(false);
+        styleButton(IMBDButton);
         IMBDButton.addActionListener(e -> openIMBDLink(media));
         info.add(IMBDButton, BorderLayout.EAST);
 
 
         JButton streamButton = new JButton("Stream");
         streamButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        streamButton.setBackground(new Color(66, 133, 244));
-        streamButton.setFocusPainted(false);
+        styleButton(streamButton);
         streamButton.addActionListener(e -> streamMedia(media));
         info.add(streamButton, BorderLayout.EAST);
 
@@ -425,6 +403,7 @@ public class searchFrame extends JFrame {
     private JLabel buildInfoLabel(String text) {
         JLabel label = new JLabel(text);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
+        label.setFont(BASE_FONT);
         label.setForeground(Color.DARK_GRAY);
         label.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 0));
         return label;
@@ -471,9 +450,6 @@ public class searchFrame extends JFrame {
         return img;
     }
 
-    private Image scaleImage(Image img, int width, int height) {
-        return img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-    }
     private void showTableInCenter(JScrollPane scrollPane) {
         centerPanel.removeAll();
         centerPanel.add(scrollPane, BorderLayout.CENTER);

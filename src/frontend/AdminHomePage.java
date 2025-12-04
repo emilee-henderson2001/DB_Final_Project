@@ -6,10 +6,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class AdminHomePage extends JFrame {
-    private static final Color GOLD = new Color(255, 215, 50);
-    private static final Color BLUE = new Color(66, 133, 244);
+import static frontend.UIStyle.*;
 
+public class AdminHomePage extends JFrame {
     public AdminHomePage(String username) {
 
         // create window
@@ -39,7 +38,7 @@ public class AdminHomePage extends JFrame {
 
         // send welcome message 
         JLabel welcome = new JLabel("Welcome, " + username + "!", SwingConstants.CENTER);
-        welcome.setFont(new Font("SansSerif", Font.BOLD, 20));
+        welcome.setFont(HEADING_FONT);
         welcome.setForeground(Color.DARK_GRAY);
         welcome.setAlignmentX(Component.CENTER_ALIGNMENT);
         header.add(welcome);
@@ -72,12 +71,8 @@ public class AdminHomePage extends JFrame {
 
     // creates  the buttons and allows action listeners when clicked
     private JButton createPrimaryButton(String label, Runnable action) {
-        JButton button = new JButton(label);
+        JButton button = primaryButton(label);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setBackground(BLUE);
-        button.setForeground(Color.BLACK);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 18, 10, 18));
         button.addActionListener(event -> action.run());
         return button;
     }

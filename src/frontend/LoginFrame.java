@@ -8,6 +8,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import backend.*;
 
+import static frontend.UIStyle.*;
+
 public class LoginFrame extends JFrame {
     private final JTextField usernameField = new JTextField();
     private final JPasswordField passwordField = new JPasswordField();
@@ -23,7 +25,7 @@ public class LoginFrame extends JFrame {
         setResizable(false);
 
         // Make the boxes for username and password smaller
-        Font smallFont = new Font("SansSerif", Font.PLAIN, 13);
+        Font smallFont = BASE_FONT;
         Insets smallMargin = new Insets(1, 6, 1, 6);
         Dimension compactSize = new Dimension(160, 24);
 
@@ -42,7 +44,7 @@ public class LoginFrame extends JFrame {
         // create panel to add content
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(new EmptyBorder(24, 24, 24, 24));
-        content.setBackground(new Color(255, 215, 50));   // gold background 
+        content.setBackground(GOLD);   // gold background 
 
         // Form setup
         JPanel form = new JPanel();
@@ -62,11 +64,8 @@ public class LoginFrame extends JFrame {
         form.add(Box.createVerticalStrut(12));
 
         // Sign in button
-        JButton login = new JButton("Sign In");
+        JButton login = primaryButton("Sign In");
         login.setAlignmentX(Component.CENTER_ALIGNMENT);
-        login.setBackground(new Color(66, 133, 244));
-        login.setForeground(Color.BLACK);
-        login.setFocusPainted(false);
         login.addActionListener(event -> attemptLogin());
 
         // allow pressing enter to trigger login action listener
@@ -109,7 +108,7 @@ public class LoginFrame extends JFrame {
         panel.setOpaque(false);
         panel.setBorder(new EmptyBorder(4, 0, 4, 0));
         JLabel jLabel = new JLabel(label);
-        jLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        jLabel.setFont(BASE_FONT);
         panel.add(jLabel, BorderLayout.NORTH);
         panel.add(field, BorderLayout.CENTER);
         return panel;
